@@ -1,0 +1,10 @@
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\ts_rw_lib\Assemblies\TS_Lib.dll
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\ts_rw_lib\Assemblies\TS_Lib.pdb
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\ts_rw_lib\TS_Lib\obj\Debug\TS_Lib.csproj.AssemblyReference.cache
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\ts_rw_lib\TS_Lib\obj\Debug\TS_Lib.GeneratedMSBuildEditorConfig.editorconfig
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\ts_rw_lib\TS_Lib\obj\Debug\TS_Lib.AssemblyInfoInputs.cache
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\ts_rw_lib\TS_Lib\obj\Debug\TS_Lib.AssemblyInfo.cs
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\ts_rw_lib\TS_Lib\obj\Debug\TS_Lib.csproj.CoreCompileInputs.cache
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\ts_rw_lib\TS_Lib\obj\Debug\TS_Lib.sourcelink.json
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\ts_rw_lib\TS_Lib\obj\Debug\TS_Lib.dll
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\ts_rw_lib\TS_Lib\obj\Debug\TS_Lib.pdb
