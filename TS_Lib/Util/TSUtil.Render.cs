@@ -21,79 +21,56 @@ public static partial class TSUtil
 
     public static class BlitUtils
     {
-        private static Mesh Quad = MakeXYQuad();
-        static Mesh MakeXYQuad()
-        {
-            var mesh = new Mesh
-            {
-                vertices = [
-                    new(-0.5f, -0.5f, 0f),
-                    new( 0.5f, -0.5f, 0f),
-                    new( 0.5f,  0.5f, 0f),
-                    new(-0.5f,  0.5f, 0f)
-                ],
-                uv = [
-                    new(0f, 0f),
-                    new(1f, 0f),
-                    new(1f, 1f),
-                    new(0f, 1f)
-                ],
-                triangles = [
-                    0, 1, 2,
-                    0, 2, 3
-                ]
-            };
-            mesh.RecalculateNormals();
-            return mesh;
-        }
         public static void BlitWithTransform(
             RenderTexture dest,
             Material mat,
             Texture? source = null,
             Vector2? scale = null,
-            Vector2? offset = null,
-            float rotation = 0f
+            Vector2 offset = default,
+            float rotation = 0
         ) {
-            if (source is not null)
-            {
-                mat = new(mat)
-                {
-                    mainTexture = source
-                };
-            }
-
-            using (new TSUtil.ActiveRT_D(dest)) // sets the active render texture (including Graphics.SetRenderTarget)
+            scale ??= Vector2.one;
+            bool temp_mat = false;
+            using (new ActiveRT_D(dest))
             {
                 GL.PushMatrix();
-                //GL.wireframe = true;
-
                 GL.LoadOrtho();
+
+                // Create material with source texture if needed
+                if (source != null)
+                {
+                    mat = new Material(mat) { mainTexture = source };
+                    temp_mat = true;
+                }
 
                 if (!mat.SetPass(0))
                 {
                     Log.Error("unable to set material to render");
+                    GL.PopMatrix();
                     return;
                 }
 
-                Matrix4x4 matrix =
-                    Matrix4x4.TRS(
-                        new Vector3(
-                            0.5f + (offset?.x ?? 0f),
-                            0.5f + (offset?.y ?? 0f),
-                            0.5f
-                        ),
-                        Quaternion.Euler(0f, 0f, rotation),
-                        new Vector3(
-                            scale?.x ?? 1f,
-                            scale?.y ?? 1f,
-                            1f
-                        )
+                // Use the exact same matrix calculation as the working GL approach
+                Matrix4x4 matrix = Matrix4x4.TRS(
+                    new Vector3(
+                        0.5f + offset.x,
+                        0.5f + offset.y,
+                        0.5f
+                    ),
+                    Quaternion.Euler(0f, 0f, rotation),
+                    new Vector3(
+                        scale.Value.x,
+                        scale.Value.y,
+                        1f
                     )
-                    * Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0f))
-                ;
-                Graphics.DrawMeshNow(MeshPool.plane10, matrix);
-                //GL.wireframe = false;
+                ) * Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0f));
+
+                GL.MultMatrix(matrix);
+                Graphics.DrawTexture(new Rect(0, 1, 1, -1), source);
+
                 GL.PopMatrix();
+                if (temp_mat)
+                    UnityEngine.Object.DestroyImmediate(mat);
             }
         }
     }
