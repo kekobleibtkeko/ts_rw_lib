@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -27,50 +28,45 @@ public static partial class TSUtil
             Texture? source = null,
             Vector2? scale = null,
             Vector2 offset = default,
-            float rotation = 0
+            float rotation = 0,
+            bool flip_x = false,
+            bool flip_y = true
         ) {
             scale ??= Vector2.one;
-            bool temp_mat = false;
             using (new ActiveRT_D(dest))
             {
                 GL.PushMatrix();
                 GL.LoadOrtho();
-
-                // Create material with source texture if needed
-                if (source != null)
-                {
-                    mat = new Material(mat) { mainTexture = source };
-                    temp_mat = true;
-                }
-
-                if (!mat.SetPass(0))
-                {
-                    Log.Error("unable to set material to render");
-                    GL.PopMatrix();
-                    return;
-                }
-
-                // Use the exact same matrix calculation as the working GL approach
-                Matrix4x4 matrix = Matrix4x4.TRS(
-                    new Vector3(
-                        0.5f + offset.x,
-                        0.5f + offset.y,
-                        0.5f
-                    ),
-                    Quaternion.Euler(0f, 0f, rotation),
-                    new Vector3(
-                        scale.Value.x,
-                        scale.Value.y,
-                        1f
+                Matrix4x4 matrix =
+                    Matrix4x4.TRS(
+                        new Vector3(
+                            0.5f + offset.x,
+                            0.5f + offset.y,
+                            0.5f
+                        ),
+                        Quaternion.Euler(0f, 0f, rotation),
+                        new Vector3(
+                            scale.Value.x,
+                            scale.Value.y,
+                            1f
+                        )
                     )
-                ) * Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0f));
-
+                    * Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0f))
+                ;
                 GL.MultMatrix(matrix);
-                Graphics.DrawTexture(new Rect(0, 1, 1, -1), source);
 
+                Vector2 x_part = flip_x
+                    ? new(1, -1)
+                    : new(0, 1)
+                ;
+                Vector2 y_part = flip_y
+                    ? new(1, -1)
+                    : new(0, 1)
+                ;
+
+                Rect img_rect = new(x_part.x, y_part.x, x_part.y, y_part.y);
+                Graphics.DrawTexture(img_rect, source ?? mat.mainTexture, mat, 0);
                 GL.PopMatrix();
-                if (temp_mat)
-                    UnityEngine.Object.DestroyImmediate(mat);
             }
         }
     }

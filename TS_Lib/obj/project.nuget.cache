@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "7OjAbR5KeNk=",
+  "dgSpecHash": "BNyJvUBGTfY=",
   "success": true,
   "projectFilePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\ts_rw_lib\\TS_Lib\\TS_Lib.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\Captiva\\.nuget\\packages\\fuzzysharp\\2.0.2\\fuzzysharp.2.0.2.nupkg.sha512"
+  ],
   "logs": []
 }

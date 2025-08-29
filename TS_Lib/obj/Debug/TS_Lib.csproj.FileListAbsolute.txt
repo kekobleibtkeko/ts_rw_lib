@@ -8,3 +8,4 @@ C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\ts_rw_lib\TS_Lib\obj
 C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\ts_rw_lib\TS_Lib\obj\Debug\TS_Lib.sourcelink.json
 C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\ts_rw_lib\TS_Lib\obj\Debug\TS_Lib.dll
 C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\ts_rw_lib\TS_Lib\obj\Debug\TS_Lib.pdb
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\ts_rw_lib\TS_Lib\obj\Debug\TS_Lib.csproj.Up2Date
