@@ -9,6 +9,8 @@ namespace TS_Lib.Util;
 
 public static partial class TSUtil
 {
+    public static Dictionary<Type, Func<object, Color>> ColorConverters = [];
+
     public static Color ColorFromHTML(string text)
     {
         if (ColorUtility.TryParseHtmlString(text, out var color))
@@ -21,5 +23,22 @@ public static partial class TSUtil
     {
         Color.RGBToHSV(color, out float hue, out float saturation, out float brightness);
         return Color.HSVToRGB(hue, saturation * t, brightness);
+    }
+
+    public static void RegisterToColorHandler<T>(Func<T, Color> color_fun)
+    {
+        ColorConverters[typeof(T)] = (val) =>
+        {
+            if (val is not T t)
+                return Color.red;
+            return color_fun(t);
+        };
+    }
+
+    public static Color GetColorFrom(this object val)
+    {
+        if (!ColorConverters.TryGetValue(val.GetType(), out var clr_fun))
+            return Color.red;
+        return clr_fun(val);
     }
 }

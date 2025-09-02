@@ -30,6 +30,12 @@ public static partial class TSUtil
     }
 
 
+    public class ScrollPosition(Vector2 start)
+    {
+        public Vector2 Current = start;
+    }
+
+
     public class TextSize_D(GameFont value) : TSDisposableHelper<GameFont>(value)
     {
         public override GameFont GetValue() => Text.Font;
@@ -69,5 +75,25 @@ public static partial class TSUtil
     {
         public override TextAnchor GetValue() => Text.Anchor;
         public override void SetValue(TextAnchor value) => Text.Anchor = value;
+    }
+
+    public class Scroll_D(Rect area, Rect content_rect, ScrollPosition? scroll_pos) : TSDisposableHelper<(Rect, Rect)>((area, content_rect))
+    {
+        public override (Rect, Rect) GetValue() => (area, content_rect);
+
+        public override void SetValue((Rect, Rect) value)
+        {
+            if (scroll_pos is not null)
+            {
+                BeginScrollView(area, ref scroll_pos.Current, content_rect, false, true);
+                //Widgets.BeginScrollView(area, ref scroll_pos.Current, content_rect);
+            }
+        }
+
+        public override void Dispose()
+        {
+            if (scroll_pos is not null)
+                Widgets.EndScrollView();
+        }
     }
 }
