@@ -9,6 +9,11 @@ namespace TS_Lib.Util;
 
 public static partial class TSUtil
 {
+    public interface IToColor
+    {
+        Color ToColor();
+    }
+
     public static Dictionary<Type, Func<object, Color>> ColorConverters = [];
 
     public static Color ColorFromHTML(string text)
@@ -37,6 +42,8 @@ public static partial class TSUtil
 
     public static Color GetColorFrom(this object val)
     {
+        if (val is IToColor to_clr)
+            return to_clr.ToColor();
         if (!ColorConverters.TryGetValue(val.GetType(), out var clr_fun))
             return Color.red;
         return clr_fun(val);

@@ -62,6 +62,11 @@ public static partial class TSUtil
     {
         public readonly Listing_Standard Listing = new();
 
+        public Rect GetRect(float height, float width_pct = 1)
+        {
+            return Listing.GetRect(height, width_pct);
+        }
+
         public override Rect GetValue() => Listing.listingRect;
         public override void SetValue(Rect value) => Listing.Begin(value);
 

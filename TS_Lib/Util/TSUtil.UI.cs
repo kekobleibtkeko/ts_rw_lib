@@ -14,6 +14,10 @@ namespace TS_Lib.Util;
 
 public static partial class TSUtil
 {
+    public delegate TaggedString TranslatorDelegate(string key);
+
+    public static float ScrollbarSize => GUI.skin.verticalScrollbar.fixedWidth + 2;
+
     public static bool SliderLabeledWithValue(
         this Listing_Standard list,
         ref float value,
@@ -124,41 +128,66 @@ public static partial class TSUtil
         rect.SplitVerticallyWithMargin(out left, out right, out _, margin, left_size);
     }
 
+    public static Rect GetRemaining(this Listing listing)
+    {
+        return new(listing.curX, listing.curY, listing.listingRect.width, listing.listingRect.height - listing.CurHeight);
+    }
+
     public static void DrawDraggableList<T>(
         this Rect draw_rect,
         List<T> values,
         Action<T, Rect> draw_fun,
-        Action<T, T?, int?>? drop_fun = null,
+        Action<T, T, int>? drop_fun = null,
         Action<T>? click_fun = null,
         float height = 30,
         float gap = 2,
         float margin = 2,
         Func<T, Color>? color_fun = null,
         Predicate<T>? is_active = null,
-        ScrollPosition? scroll_pos = null
+        ScrollPosition? scroll_pos = null,
+        bool no_drag = false
     ) {
         //using (new GUIColor_D(Color.red))
         //    Widgets.DrawBox(draw_rect);
         const float SPLITTER_MARGIN = 8;
 
-        drop_fun ??= (val, dropped, index) =>
+        drop_fun ??= (val, dropped_on, offset) =>
         {
-            if (dropped is not null)
+            var val_i = values.IndexOf(val);
+            var dropped_on_i = values.IndexOf(dropped_on);
+            if (val_i < 0 || dropped_on_i < 0 || val_i == dropped_on_i)
+                return;
+
+            Log.Message($"{val_i} -> {dropped_on_i} + {offset}");
+
+            switch (offset)
             {
-                values.Swap(values.IndexOf(dropped), values.IndexOf(val));
-            }
-            else if (index.HasValue)
-            {
-                var insert_index = index.Value;
-                var prev_index = values.IndexOf(val);
-                if (prev_index > insert_index)
-                    insert_index++;
-                values.Remove(val);
-                Log.Message($"{index.Value} -> {insert_index}");
-                if (insert_index < values.Count)
-                    values.Insert(insert_index, val);
-                else
-                    values.Add(val);
+                case 0:
+                    // Swap
+                    (values[val_i], values[dropped_on_i]) = (values[dropped_on_i], values[val_i]);
+                    break;
+
+                case -1:
+                    // Move a before b
+                    {
+                        var item = values[val_i];
+                        values.RemoveAt(val_i);
+                        // If aIndex < bIndex, removing shifts bIndex left by one
+                        if (val_i < dropped_on_i) dropped_on_i--;
+                        values.Insert(dropped_on_i, item);
+                    }
+                    break;
+
+                case 1:
+                    // Move a after b
+                    {
+                        var item = values[val_i];
+                        values.RemoveAt(val_i);
+                        // If aIndex < bIndex, removing shifts bIndex left by one
+                        if (val_i < dropped_on_i) dropped_on_i--;
+                        values.Insert(dropped_on_i + 1, item);
+                    }
+                    break;
             }
         };
 
@@ -172,7 +201,7 @@ public static partial class TSUtil
                 draw_rect.height
             )
         )
-            .ShrinkRight(GUI.skin.verticalScrollbar.fixedWidth)
+            .ShrinkRight(ScrollbarSize)
         ;
 
         //using (new GUIColor_D(Color.red))
@@ -184,29 +213,32 @@ public static partial class TSUtil
         var listing = list.Listing;
 
         var drnd_group = DragAndDropWidget.NewGroup();
+        var drag_size = no_drag ? 0 : height;
         var m_pos = Event.current.mousePosition;
         int i = 0;
-        int drop_index = 0;
         foreach (var val in values.ToList())
         {
+            Rect prev_area;
+            Rect? next_area = null;
             var var_rect = listing.GetRect(height);
             var top = var_rect.TopPartPixels(0);
             var bottom = var_rect.BottomPartPixels(0);
 
+            var drag_rect = var_rect.LeftPartPixels(drag_size);
             var_rect = var_rect.ContractedBy(margin);
-
             // drop area for previous
-            var prev_area = top.ExpandedBy(0, SPLITTER_MARGIN);
-            if (DragAndDropWidget.Dragging && Mouse.IsOver(prev_area))
+            prev_area = top.ExpandedBy(0, SPLITTER_MARGIN);
+            if (!no_drag && DragAndDropWidget.Dragging && Mouse.IsOver(prev_area))
             {
-                drop_index = i;
+                using (new GUIColor_D(Color.green))
+                    Widgets.DrawBox(prev_area);
                 Widgets.DrawBox(top.Move(0, -(gap * 0.5f)));
                 DragAndDropWidget.DropArea(drnd_group, prev_area, drop =>
                 {
                     SoundDefOf.Click.PlayOneShotOnCamera();
-                    Log.Message($"dropping before {drop_index}");
-                    drop_fun((T)drop, default, drop_index - 1);
-                }, default);
+                    Log.Message($"dropping before {values.IndexOf(val)}");
+                    drop_fun((T)drop, val, -1);
+                }, null);
             }
 
             var active = is_active?.Invoke(val) ?? false;
@@ -217,42 +249,56 @@ public static partial class TSUtil
             else
             {
                 var color = color_fun(val);
-                DrawColoredBox(var_rect, color, active);
+                DrawColoredBox(var_rect, color, active, is_button: click_fun is not null);
             }
 
-            DragAndDropWidget.Draggable(drnd_group, var_rect, val, () => {
-                if (click_fun is null)
-                    return;
+            if (Widgets.ButtonInvisible(var_rect.ShrinkLeft(drag_size)) && click_fun is not null)
+            {
                 SoundDefOf.RowTabSelect.PlayOneShotOnCamera();
                 click_fun(val);
-            });
+            }
 
-            DragAndDropWidget.DropArea(drnd_group, var_rect.ContractedBy(0, SPLITTER_MARGIN), drop =>
+            if (!no_drag)
             {
-                drop_index = i;
-                SoundDefOf.Click.PlayOneShotOnCamera();
-                Log.Message($"dropping onto {drop_index}");
-                drop_fun((T)drop, val, drop_index);
-            }, val);
-
-            // drop area for last
-            if (i == item_count - 1)
-            {
-                var next_area = bottom.ExpandedBy(0, SPLITTER_MARGIN);
-                if (DragAndDropWidget.Dragging && Mouse.IsOver(next_area))
+                Widgets.DrawTextureFitted(drag_rect.ContractedBy(2), TexButton.DragHash, 1);
+                DragAndDropWidget.Draggable(drnd_group, drag_rect, val, onStartDragging: () =>
                 {
-                    drop_index = i;
-                    Widgets.DrawBox(bottom.Move(0, -(gap * 0.5f)));
-                    DragAndDropWidget.DropArea(drnd_group, next_area, drop =>
+                    Log.Message($"started dragging: {val} [{values.IndexOf(val)}]");
+                });
+
+                // drop area for last
+                if (i == item_count - 1)
+                {
+                    next_area = bottom.ExpandedBy(0, SPLITTER_MARGIN);
+                    if (DragAndDropWidget.Dragging && Mouse.IsOver(next_area.Value))
+                    {
+                        using (new GUIColor_D(Color.blue))
+                            Widgets.DrawBox(next_area.Value);
+                        Widgets.DrawBox(bottom.Move(0, -(gap * 0.5f)));
+                        DragAndDropWidget.DropArea(drnd_group, next_area.Value, drop =>
+                        {
+                            SoundDefOf.Click.PlayOneShotOnCamera();
+                            Log.Message($"dropping after {values.IndexOf(val)}");
+                            drop_fun((T)drop, val, 1);
+                        }, null);
+                    }
+                }
+
+                var cur_area = var_rect;
+                if (DragAndDropWidget.Dragging && !Mouse.IsOver(prev_area) && !Mouse.IsOver(prev_area.Move(0, height + gap)))
+                {
+                    using (new GUIColor_D(Color.red))
+                        Widgets.DrawBox(cur_area);
+                    DragAndDropWidget.DropArea(drnd_group, var_rect, drop =>
                     {
                         SoundDefOf.Click.PlayOneShotOnCamera();
-                        Log.Message($"dropping after {drop_index}");
-                        drop_fun((T)drop, default, drop_index + 1);
-                    }, default);
+                        Log.Message($"dropping onto {values.IndexOf(val)}");
+                        drop_fun((T)drop, val, 0);
+                    }, null);
                 }
             }
 
-            draw_fun(val, var_rect.ContractedBy(margin, 0));
+            draw_fun(val, var_rect.ShrinkLeft(drag_size).ContractedBy(margin, 0));
 
             using (new TextAnchor_D(TextAnchor.MiddleRight))
                 Widgets.Label(var_rect, i.ToString());
@@ -263,28 +309,28 @@ public static partial class TSUtil
         }
     }
 
-    public static void DrawEnumAsButtons<T>(
-        this Rect draw_rect,
+    public static void DrawAsColoredButtons<T>(
+        this IEnumerable<T> values,
+        Rect draw_rect,
         Predicate<T> is_active,
         Action<T> pressed,
         Func<T, string>? get_label = null,
         Func<T, string>? get_tooltip = null,
         float? gap = null,
         bool reverse = false
-    )
-        where
-            T : struct, Enum
-    {
+    ) {
         var size = draw_rect.height;
         gap ??= size * 0.1f;
         Rect cur_rect;
 
         int i = 0;
-        List<T> list = [.. Enum.GetValues(typeof(T)).Cast<T>()];
+        List<T> list = [.. values];
         if (reverse)
             list.Reverse();
         foreach (T en in list)
         {
+            if (en is null)
+                continue;
             cur_rect = new(
                 reverse
                     ? draw_rect.width - size - (i * size + gap.Value)
@@ -313,12 +359,58 @@ public static partial class TSUtil
             if (Widgets.ClickedInsideRect(cur_rect))
                 pressed(en);
 
-            
+
             using (new TextAnchor_D(TextAnchor.MiddleCenter))
                 Widgets.Label(vis_rect, get_label?.Invoke(en) ?? en.ToString());
             if (get_tooltip is not null)
                 TooltipHandler.TipRegion(cur_rect, get_tooltip(en));
             i++;
         }
+    }
+
+    public static void DrawEnumAsButtons<T>(
+        this Rect draw_rect,
+        Predicate<T> is_active,
+        Action<T> pressed,
+        Func<T, string>? get_label = null,
+        Func<T, string>? get_tooltip = null,
+        float? gap = null,
+        bool reverse = false
+    )
+        where
+            T : struct, Enum
+    {
+        Enum
+            .GetValues(typeof(T))
+            .Cast<T>()
+            .DrawAsColoredButtons(
+                draw_rect,
+                is_active,
+                pressed,
+                get_label,
+                get_tooltip,
+                gap,
+                reverse
+            )
+        ;
+    }
+
+    public static Rect Labled(this Listing list, float height, string label, TranslatorDelegate? translator = null, float split = 0.5f)
+        => list.GetRect(height).Labled(label, translator, split);
+
+    public static WidgetRow LabeledRow(this Rect rect, string label, TranslatorDelegate? translator = null, float split = 0.5f, float row_gap = 4)
+    {
+        var row_rect = rect.Labled(label, translator, split);
+        return new(row_rect.x, row_rect.y, UIDirection.RightThenDown, gap: row_gap);
+    }
+
+    public static Rect Labled(this Rect rect, string label, TranslatorDelegate? translator = null, float split = 0.5f)
+    {
+        rect.SplitVerticallyPct(split, out var label_rect, out var content_rect);
+        if (translator is not null)
+            label = translator(label);
+        using (new TextAnchor_D(TextAnchor.MiddleLeft))
+            Widgets.Label(label_rect, label);
+        return content_rect;
     }
 }
