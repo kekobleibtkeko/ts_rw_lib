@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TS_Lib.Save;
+using TS_Lib.Util;
 using UnityEngine;
 using Verse;
 
@@ -53,14 +54,29 @@ public class TSTransform : IExposable
         };
     }
 
+	public void TransformOffset(ref Vector3 position)
+	{
+		position += Offset;
+	}
+
+	public void TransformRotation(ref Quaternion quat)
+	{
+		quat *= Quaternion.AngleAxis(RotationOffset, Vector3.up);
+	}
+
+	public void TransformScale(ref Vector3 scale)
+	{
+		scale = Vector3.Scale(scale, Scale.ToUpFacingVec3(1));
+	}
+
     public void ExposeData()
-    {
-        Scribe_Values.Look(ref Rotation, "rotation");
-        Scribe_Values.Look(ref RotationOffset, "rotoffset");
-        Scribe_Values.Look(ref Pivot, "pivot", DrawData.PivotCenter);
-        TSSaveUtility.LookAccurate(ref Offset, "offset", default);
-        TSSaveUtility.LookAccurate(ref Scale, "scale", Vector2.one);
-    }
+	{
+		Scribe_Values.Look(ref Rotation, "rotation");
+		Scribe_Values.Look(ref RotationOffset, "rotoffset");
+		Scribe_Values.Look(ref Pivot, "pivot", DrawData.PivotCenter);
+		TSSaveUtility.LookAccurate(ref Offset, "offset", default);
+		TSSaveUtility.LookAccurate(ref Scale, "scale", Vector2.one);
+	}
 }
 
 public class TSTransform4 : IExposable

@@ -1,10 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "BNyJvUBGTfY=",
+  "dgSpecHash": "LeYMc7F2D6I=",
   "success": true,
-  "projectFilePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\ts_rw_lib\\TS_Lib\\TS_Lib.csproj",
+  "projectFilePath": "/home/alex/.local/share/Steam/steamapps/common/RimWorld/Mods/ts_rw_lib/TS_Lib/TS_Lib.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Captiva\\.nuget\\packages\\fuzzysharp\\2.0.2\\fuzzysharp.2.0.2.nupkg.sha512"
+    "/home/alex/.nuget/packages/fuzzysharp/2.0.2/fuzzysharp.2.0.2.nupkg.sha512",
+    "/home/alex/.nuget/packages/microsoft.netframework.referenceassemblies/1.0.3/microsoft.netframework.referenceassemblies.1.0.3.nupkg.sha512",
+    "/home/alex/.nuget/packages/microsoft.netframework.referenceassemblies.net48/1.0.3/microsoft.netframework.referenceassemblies.net48.1.0.3.nupkg.sha512",
+    "/home/alex/.nuget/packages/system.runtime.compilerservices.unsafe/6.1.2/system.runtime.compilerservices.unsafe.6.1.2.nupkg.sha512"
   ],
   "logs": []
 }

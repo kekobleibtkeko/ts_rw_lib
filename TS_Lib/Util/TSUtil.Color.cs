@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,12 +41,29 @@ public static partial class TSUtil
         };
     }
 
-    public static Color GetColorFrom(this object val)
-    {
-        if (val is IToColor to_clr)
-            return to_clr.ToColor();
-        if (!ColorConverters.TryGetValue(val.GetType(), out var clr_fun))
-            return Color.red;
-        return clr_fun(val);
-    }
+	public static bool TryGetColorFrom(this object val, [NotNullWhen(true)] out Color? color)
+	{
+		if (val is IToColor to_color)
+		{
+			color = to_color.ToColor();
+			return true;
+		}
+		if (ColorConverters.TryGetValue(val.GetType(), out var color_fun))
+		{
+			color = color_fun(val);
+			return true;
+		}
+
+		color = null;
+		return false;
+	}
+
+	public static Color GetColorFrom(this object val)
+	{
+		if (val is IToColor to_clr)
+			return to_clr.ToColor();
+		if (!ColorConverters.TryGetValue(val.GetType(), out var clr_fun))
+			return Color.red;
+		return clr_fun(val);
+	}
 }
