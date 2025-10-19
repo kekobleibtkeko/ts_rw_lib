@@ -15,7 +15,8 @@ namespace TS_Lib.Util;
 
 public static partial class TSUtil
 {
-	public delegate TaggedString TranslatorDelegate(string key);
+	public delegate TaggedString SimpleTranslatorDelegate(string key);
+	public delegate TaggedString TranslatorDelegate(string key, params NamedArgument[] args);
 
 	public static float ScrollbarSize => GUI.skin.verticalScrollbar.fixedWidth + 2;
 
@@ -509,7 +510,7 @@ public static partial class TSUtil
 		bool reverse = false,
 		bool reverse_order = false,
 		float size_ratio = 1,
-		TranslatorDelegate? translator = null
+		SimpleTranslatorDelegate? translator = null
 	)
 		where
 			T : struct, Enum
@@ -567,10 +568,10 @@ public static partial class TSUtil
 	}
 	public static WidgetRow Row(this Listing list, float height, float row_gap = 4)
 		=> list.GetRect(height).Row(row_gap);
-	public static Rect Labled(this Listing list, float height, string label, TranslatorDelegate? translator = null, float split = 0.5f)
+	public static Rect Labled(this Listing list, float height, string label, SimpleTranslatorDelegate? translator = null, float split = 0.5f)
 		=> list.GetRect(height).Labled(label, translator, split);
 
-	public static WidgetRow LabeledRow(this Rect rect, string label, TranslatorDelegate? translator = null, float split = 0.5f, float row_gap = 4)
+	public static WidgetRow LabeledRow(this Rect rect, string label, SimpleTranslatorDelegate? translator = null, float split = 0.5f, float row_gap = 4)
 	{
 		var row_rect = rect.Labled(label, translator, split);
 		return row_rect.Row(row_gap);
@@ -580,7 +581,7 @@ public static partial class TSUtil
 		return new(row_rect.x, row_rect.y, UIDirection.RightThenDown, gap: row_gap);
 	}
 
-	public static Rect Labled(this Rect rect, string label, TranslatorDelegate? translator = null, float split = 0.5f)
+	public static Rect Labled(this Rect rect, string label, SimpleTranslatorDelegate? translator = null, float split = 0.5f)
 	{
 		rect.SplitVerticallyPct(split, out var label_rect, out var content_rect);
 		if (translator is not null)

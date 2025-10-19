@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
+using Verse;
 
 namespace TS_Lib.Util;
 
@@ -42,4 +43,7 @@ public static partial class TSUtil
 			yield return en;
 		}
 	}
+
+	public static bool DevMode => Prefs.DevMode;
+	public static bool ShowDebugGizmos => DebugSettings.ShowDevGizmos;
 }

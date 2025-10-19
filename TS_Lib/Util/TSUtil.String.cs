@@ -22,4 +22,9 @@ public static partial class TSUtil
 		}
 		return FuzzySharp.Fuzz.WeightedRatio(a, b);
 	}
+
+	public static void AppendReason(this StringBuilder builder, string line)
+	{
+		builder.AppendLine($"- {line}");
+	}
 }

@@ -44,6 +44,19 @@
         "build": {
           "buildTransitive/net462/_._": {}
         }
+      },
+      "WeightedRandomizer/2.0.1": {
+        "type": "package",
+        "compile": {
+          "lib/net35/WeightedRandomizer.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net35/WeightedRandomizer.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
       }
     }
   },
@@ -482,13 +495,31 @@
         "system.runtime.compilerservices.unsafe.6.1.2.nupkg.sha512",
         "system.runtime.compilerservices.unsafe.nuspec"
       ]
+    },
+    "WeightedRandomizer/2.0.1": {
+      "sha512": "LrKcuCixGIDFK2irMPa4fscr1+WhsZiH2uzm1w1UFAE5p1C0cynEJKN6xDrYx7UJe/LZhbGmfgu2ebEPRQ+Tsw==",
+      "type": "package",
+      "path": "weightedrandomizer/2.0.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net35/WeightedRandomizer.dll",
+        "lib/net35/WeightedRandomizer.pdb",
+        "lib/net35/WeightedRandomizer.xml",
+        "lib/netstandard1.0/WeightedRandomizer.dll",
+        "lib/netstandard1.0/WeightedRandomizer.pdb",
+        "lib/netstandard1.0/WeightedRandomizer.xml",
+        "weightedrandomizer.2.0.1.nupkg.sha512",
+        "weightedrandomizer.nuspec"
+      ]
     }
   },
   "projectFileDependencyGroups": {
     ".NETFramework,Version=v4.8": [
       "FuzzySharp >= 2.0.2",
       "Microsoft.NETFramework.ReferenceAssemblies >= 1.0.3",
-      "System.Runtime.CompilerServices.Unsafe >= 6.1.2"
+      "System.Runtime.CompilerServices.Unsafe >= 6.1.2",
+      "WeightedRandomizer >= 2.0.1"
     ]
   },
   "packageFolders": {
@@ -547,9 +578,13 @@
           "System.Runtime.CompilerServices.Unsafe": {
             "target": "Package",
             "version": "[6.1.2, )"
+          },
+          "WeightedRandomizer": {
+            "target": "Package",
+            "version": "[2.0.1, )"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.109/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.110/RuntimeIdentifierGraph.json"
       }
     }
   }

@@ -1,4 +1,5 @@
-﻿using TS_Lib.Save;
+﻿using System.Linq;
+using TS_Lib.Save;
 using UnityEngine;
 using Verse;
 
@@ -6,8 +7,9 @@ namespace TS_Lib;
 
 public class TSLibMod : Mod
 {
-    public TSLibMod(ModContentPack content) : base(content)
-    {
-        ConverterRegistrator.Register();
-    }
+	public TSLibMod(ModContentPack content) : base(content)
+	{
+		ConverterRegistrator.Register();
+	}
 }
+

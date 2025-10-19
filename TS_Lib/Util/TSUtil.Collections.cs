@@ -48,6 +48,24 @@ public static partial class TSUtil
 		}
 		return val;
 	}
+	public static V Ensure<K, V>(this IDictionary<K, V> dict, K key, Func<K, V> def_func)
+	{
+		if (!dict.TryGetValue(key, out V val))
+		{
+			val = def_func(key);
+			dict[key] = val;
+		}
+		return val;
+	}
+
+	public static bool TryAdd<K, V>(this IDictionary<K, V> dict, K key, V value)
+	{
+		if (dict.ContainsKey(key))
+			return false;
+
+		dict[key] = value;
+		return true;
+	}
 
 	public static List<T> GetEnumValues<T>()
 		where
